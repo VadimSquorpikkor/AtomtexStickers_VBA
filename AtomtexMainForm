@@ -1,0 +1,203 @@
+Sub FindAndReplaceYear()
+Dim s As Shape
+For Each s In ActiveDocument.ActivePage.Shapes
+        If s.Type = cdrTextShape Then
+            If s.Text.Story = "2017" Then
+                s.Text.Story = "2018"
+            End If
+        End If
+    Next s
+End Sub
+Sub FindAndReplaceTextWithAdd()
+Dim s As Shape
+Dim count As Integer
+count = 1
+For Each s In ActiveDocument.ActivePage.Shapes
+        If s.Type = cdrTextShape Then
+            If s.Text.Story = "1111" Then
+                'TextBox1
+                MsgBox "Ok"
+                s.Text.Story = count
+                count = count + 1
+            End If
+        End If
+        
+    Next s
+End Sub
+Private Sub Sheet_Fill_Array()
+   Dim myarray As Variant
+   myarray = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+   Range("a1:a10").value = Application.Transpose(myarray)
+End Sub
+Private Sub from_sheet_make_array()
+   Dim thisarray As Variant
+   thisarray = Range("a1:a10").value
+
+   counter = 1                'looping structure to look at array
+   While counter <= UBound(thisarray)
+      MsgBox thisarray(counter, 1)
+      counter = counter + 1
+   Wend
+End Sub
+Sub test()
+Dim s As Shape
+Dim value As String, os As ShapeRange
+Set os = ActiveSelectionRange
+If os.count < 1 Then MsgBox ("Nothing selected!"): Exit Sub
+ For Each s In os
+      value = s.Fill.UniformColor.ToString
+      value1 = s.Fill.UniformColor.Name
+      value2 = s.Type
+      MsgBox (value & vbCr & value1)
+      'MsgBox (value2)
+ Next s
+End Sub
+Sub test2()
+Dim s As Shape
+Dim value As String, os As ShapeRange
+Set os = ActiveSelectionRange
+If os.count < 1 Then MsgBox ("Nothing selected!"): Exit Sub
+ For Each s In os
+    'if s.Outline.Color.IsSame (
+    If s.Type <> 6 Then ' this mean s.type not equal text (6 is text type)
+      If s.Outline.color.CMYKBlack = 100 Then
+      MsgBox ("blk!")
+      s.Delete
+      End If
+    End If
+ Next s
+End Sub
+Sub delAllByColor()
+    Dim colBlack As New color, colCyan As New color, colSelect As New color
+    colBlack.CMYKAssign 0, 0, 0, 100
+    colCyan.CMYKAssign 100, 0, 0, 0
+    colSelect.CopyAssign colBlack
+    Dim s As Shape
+    Dim sr As ShapeRange 'useless there
+    Set asr = ActiveSelectionRange
+    
+    If asr.count < 1 Then MsgBox ("You should select something, dude!"): Exit Sub
+    
+    For Each s In asr
+        If s.Type <> 6 Then ' this mean s.type not equal text (6 is text type)
+            If s.Outline.color.IsSame(colSelect) Then
+                s.Delete
+            End If
+        Else
+            If s.Fill.UniformColor.IsSame(colSelect) Then
+                s.Delete
+            End If
+        End If
+    Next s
+End Sub
+
+Sub replaceColorsGDG()
+
+Dim col As New color, col2 As New color
+Dim orig As Shape, smith As Shape
+Dim s As Shape, sp As Shape
+Dim pwc As PowerClip
+Dim x As Double, y As Double
+Dim Shift As Long
+Dim a As Boolean, b As Boolean
+
+ 
+ MsgBox "Select shape with the color you need replace", , "GDG"
+ a = False
+ While Not a
+  a = ActiveDocument.GetUserClick(x, y, Shift, 10, False, cdrCursorEyeDrop)
+  If Not a Then
+        Set orig = ActivePage.SelectShapesAtPoint(x, y, False)
+        col.CopyAssign orig.Fill.UniformColor
+        ActiveDocument.ClearSelection
+        GoTo 1001
+    End If
+ Wend
+1001:
+MsgBox "Select shape with the color you need applied", , "GDG"
+
+ b = False
+ While Not b
+  b = ActiveDocument.GetUserClick(x, y, Shift, 10, False, cdrCursorEyeDrop)
+  If Not b Then
+        Set smith = ActivePage.SelectShapesAtPoint(x, y, False)
+        col2.CopyAssign smith.Fill.UniformColor
+        ActiveDocument.ClearSelection
+        GoTo 1002
+    End If
+ Wend
+1002:
+
+For Each s In ActivePage.FindShapes
+    If s.Fill.Type = cdrUniformFill Or Not s.PowerClip Is Nothing Then
+        Set pwc = Nothing
+        On Error Resume Next
+        Set pwc = s.PowerClip
+        On Error GoTo 0
+        If Not pwc Is Nothing Then
+            
+            For Each sp In pwc.Shapes
+            'sp.CreateSelection
+            If sp.Fill.Type = cdrUniformFill Then
+                If sp.Fill.UniformColor.IsSame(col) Then '
+                    sp.Fill.ApplyUniformFill col2
+                End If
+            End If
+            Next sp
+        Else
+            If s.Fill.UniformColor.IsSame(col) Then '
+                s.Fill.ApplyUniformFill col2
+            End If
+        End If
+    End If
+Next s
+End Sub
+Sub someLoop()
+Dim s As Shape, sr As ShapeRange, p As Page
+For Each p In ActiveDocument.Pages
+    p.Activate
+    
+    'Set sr = ActivePage.Shapes.FindShape(,)
+    For Each s In ActivePage.Shapes
+        s.AlignToPage (cdrAlignLeft)
+    Next s
+Next p
+End Sub
+Sub sizeIt()
+    frmMain.Show vbModeless
+End Sub
+Sub Atomtex()
+    atomtexMainForm.Show vbModeless
+End Sub
+Private Sub go1()
+    Dim s As Shape, sr As ShapeRange
+    Dim dSize As Double
+    If txtSize.TextLength = 0 Then 'check if txtValue is empty
+    dSize = 1
+    Else
+    dSize = frmMain.txtSize.value 'there's no need to tap '.value' -- its default,
+    'i just tap it for better understanding
+    End If
+    'it should be exception check: type mismatch (1.3 instead 1,3 or string value)
+    Set sr = ActiveSelectionRange
+    'it could be checkBox to select between ActiveSelectionRange and ActiveDocument.Pages
+    '(and ActiveDocument.ActivePage. ?)
+    For Each s In sr
+        s.SetSize s.SizeWidth * dSize, s.SizeHeight * dSize
+        
+    Next s
+    
+End Sub
+Private Function resize(ByVal x As Double)
+    Dim s As Shape, sr As ShapeRange, p As Page
+    For Each p In ActiveDocument.Pages
+        p.Activate
+        'Set sr = ActivePage.Shapes.FindShape(,)
+            For Each s In ActivePage.Shapes
+                s.SetSize s.SizeWidth * x, s.SizeHeight * x
+            Next s
+    Next p
+End Function
+Sub resizeAll()
+    frmCol.Show 'vbModeless
+End Sub
