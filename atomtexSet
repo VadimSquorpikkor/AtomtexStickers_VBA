@@ -1,0 +1,74 @@
+
+Public Sub CommandButton1_Click()
+    Dim sr As ShapeRange
+    Set sr = ActiveSelectionRange
+    
+    If atomtexSet.CheckBox1.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 1
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection 'CreateSelection method Makes a selection from a shape range
+    End If
+    If atomtexSet.CheckBox2.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 2
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection
+    End If
+    If atomtexSet.CheckBox3.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 3
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection
+    End If
+    If atomtexSet.CheckBox4.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 4
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection
+    End If
+    If atomtexSet.CheckBox5.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 5
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection
+    End If
+    If atomtexSet.CheckBox6.Value = True Then
+        getShapesFromFile "h:\thisone.cdr", 6
+        sr.AddRange ActiveSelectionRange
+        sr.CreateSelection
+    End If
+    
+    sr.AddRange ActiveSelectionRange
+    sr.CreateSelection 'CreateSelection method Makes a selection from a shape range
+    
+    Dim s As Shape
+    Dim target As String
+    target = "00000"
+    
+    If atomtexSet.TextBox.TextLength = 0 Then
+        MsgBox "TextBox is Empty"
+        Exit Sub
+    Else:
+        number = atomtexSet.TextBox.Value
+    End If
+    
+    For Each s In ActiveDocument.ActivePage.Shapes
+        If s.Type = cdrTextShape Then
+            count = s.Text.Find(target, False)
+            If count > 0 Then 'if found
+                s.Text.Story.Characters(count, Len(number)) = number
+            End If
+        End If
+Next s
+End Sub
+Public Function getShapesFromFile(ByVal file As String, pageNum As Integer)
+    Dim sourceDoc As Document
+    Dim sourcePage As page
+    Dim sr As ShapeRange
+    Set currentDoc = Application.ActiveDocument
+
+    Set sr = Application.OpenDocument(file).Pages(pageNum).Shapes.All
+    
+    sr.Copy
+    currentDoc.Activate
+    ActiveLayer.Paste
+End Function
+Private Sub raButton_Click()
+
+End Sub
