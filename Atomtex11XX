@@ -1,0 +1,19 @@
+Public Function getShapesFromFile(ByVal file As String, pageNum As Integer)
+    Dim sourceDoc As Document
+    Dim sourcePage As page
+    Dim sr As ShapeRange
+    Set currentDoc = Application.ActiveDocument
+
+    Set sr = Application.OpenDocument(file).Pages(pageNum).Shapes.All
+    
+    sr.Copy
+    currentDoc.Activate
+    ActiveLayer.Paste
+End Function
+
+
+Private Sub CommandButton1_Click()
+    Dim pass As String
+    pass = "d:\nakleiki\11XX_NEW.cdr"
+    getShapesFromFile pass, ComboBox1.ListIndex + 1
+End Sub
